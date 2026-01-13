@@ -124,18 +124,36 @@ function Dashboard() {
   }
 
   /* ===============================
-     UI
+     UI (RESPONSIVE)
   ================================ */
 
   return (
-    <div className="page" style={{ padding: 30 }}>
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <h1>Adiwidia Utama Indonesia</h1>
+    <div style={{ padding: 16, maxWidth: 1200, margin: "auto" }}>
+
+      {/* HEADER */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: window.innerWidth < 768 ? "column" : "row",
+          justifyContent: "space-between",
+          gap: 12,
+          marginBottom: 20
+        }}
+      >
+        <h1 style={{ margin: 0 }}>Adiwidia Utama Indonesia</h1>
         <button className="btn" onClick={logout}>Logout</button>
       </div>
 
-      <div className="grid" style={{ display: "grid", gridTemplateColumns: "1fr 2fr", gap: 20, marginTop: 20 }}>
+      {/* GRID */}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: window.innerWidth < 768 ? "1fr" : "1fr 2fr",
+          gap: 20
+        }}
+      >
 
+        {/* FORM */}
         <div className="card">
           <h2>Tambah Customer</h2>
 
@@ -144,70 +162,112 @@ function Dashboard() {
           <input className="input" name="pic_name" placeholder="PIC" value={form.pic_name} onChange={handleChange} />
           <input className="input" name="pic_phone" placeholder="Telepon" value={form.pic_phone} onChange={handleChange} />
 
-          <button className="btn btn-primary" onClick={submit}>Simpan</button>
+          <button className="btn btn-primary" style={{ width: "100%" }} onClick={submit}>
+            Simpan
+          </button>
         </div>
 
+        {/* CUSTOMER LIST */}
         <div className="card">
           <h2>Daftar Customer</h2>
 
+          {window.innerWidth >= 768 ? (
+            <table className="table">
+              <thead>
+                <tr>
+                  <th>Nama</th>
+                  <th>PIC</th>
+                  <th>Telp</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {leads.map(l => (
+                  <tr key={l.id}>
+                    <td>{l.name}</td>
+                    <td>{l.pic_name}</td>
+                    <td>{l.pic_phone}</td>
+                    <td>
+                      <button className="btn" onClick={() => navigate(`/offers/new/${l.id}`)}>
+                        Buat
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {leads.map(l => (
+                <div key={l.id} style={{ border: "1px solid #ddd", padding: 12, borderRadius: 6 }}>
+                  <strong>{l.name}</strong>
+                  <div>{l.pic_name}</div>
+                  <div>{l.pic_phone}</div>
+                  <button
+                    style={{ marginTop: 8, width: "100%" }}
+                    className="btn"
+                    onClick={() => navigate(`/offers/new/${l.id}`)}
+                  >
+                    Buat Penawaran
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* OFFERS */}
+      <div className="card" style={{ marginTop: 30 }}>
+        <h2>Daftar Penawaran</h2>
+
+        {window.innerWidth >= 768 ? (
           <table className="table">
             <thead>
               <tr>
-                <th>Nama</th>
-                <th>PIC</th>
-                <th>Telp</th>
-                <th></th>
+                <th>No</th>
+                <th>Customer</th>
+                <th>Total</th>
+                <th>PDF</th>
               </tr>
             </thead>
             <tbody>
-              {leads.map(l => (
-                <tr key={l.id}>
-                  <td>{l.name}</td>
-                  <td>{l.pic_name}</td>
-                  <td>{l.pic_phone}</td>
+              {offers.map(o => (
+                <tr key={o.id}>
+                  <td>{o.offer_number}</td>
+                  <td>{o.leads?.name}</td>
                   <td>
-                    <button className="btn" onClick={() => navigate(`/offers/new/${l.id}`)}>
-                      Buat Penawaran
-                    </button>
+                    {new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0
+                    }).format(o.total_amount)}
+                  </td>
+                  <td>
+                    <a href={o.pdf_url} target="_blank" rel="noreferrer">Lihat</a>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
-
-      <div className="card" style={{ marginTop: 30 }}>
-        <h2>Daftar Penawaran</h2>
-
-        <table className="table">
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Customer</th>
-              <th>Total</th>
-              <th>PDF</th>
-            </tr>
-          </thead>
-          <tbody>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
             {offers.map(o => (
-              <tr key={o.id}>
-                <td>{o.offer_number}</td>
-                <td>{o.leads?.name}</td>
-                <td>
+              <div key={o.id} style={{ border: "1px solid #ddd", padding: 12, borderRadius: 6 }}>
+                <strong>{o.offer_number}</strong>
+                <div>{o.leads?.name}</div>
+                <div>
                   {new Intl.NumberFormat("id-ID", {
                     style: "currency",
                     currency: "IDR",
                     minimumFractionDigits: 0
                   }).format(o.total_amount)}
-                </td>
-                <td>
-                  <a href={o.pdf_url} target="_blank" rel="noreferrer">Lihat</a>
-                </td>
-              </tr>
+                </div>
+                <a href={o.pdf_url} target="_blank" rel="noreferrer">Lihat PDF</a>
+              </div>
             ))}
-          </tbody>
-        </table>
+          </div>
+        )}
       </div>
     </div>
   )
